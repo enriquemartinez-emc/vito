@@ -12,18 +12,18 @@ Core workflow being built:
 
 ## Architecture: Functional Core, Imperative Shell + type-driven domain modeling
 
-Follows the **emc-fcis-nextjs-feature-slice** skill's layout, rooted at the repo root (no `src/` wrapper — `tsconfig.json` already maps `@/*` to the root):
+Follows the **emc-fcis-nextjs-feature-slice** skill's layout exactly, under `src/` (the skill's own reference structure is `src`-rooted; `tsconfig.json` maps `@/*` to `./src/*`). `public/` stays at the repo root per Next.js convention — it's the only top-level app dir that doesn't move under `src/`.
 
 ```
-core/{Feature}/{feature}.types.ts   pure domain types (Zod-inferred discriminated unions)
-core/{Feature}/{feature}.rules.ts   pure functions: transitions, pricing, calculations
-core/shared/                        cross-feature value types (e.g. Money)
-features/{Feature}/repository.ts    database queries only, no business rules
-features/{Feature}/actions.ts       'use server'; Zod-parses input, orchestrates repository + core
-features/{Feature}/components/      feature-specific UI
-lib/db/server.ts                    privileged client (SUPABASE_SECRET_KEY) — every repository.ts uses this
-lib/db/client.ts                    browser client (publishable key) — client components only
-app/**/page.tsx                     thin routing layer, renders features/* components, no business logic
+src/core/{Feature}/{feature}.types.ts   pure domain types (Zod-inferred discriminated unions)
+src/core/{Feature}/{feature}.rules.ts   pure functions: transitions, pricing, calculations
+src/core/shared/                        cross-feature value types (e.g. Money)
+src/features/{Feature}/repository.ts    database queries only, no business rules
+src/features/{Feature}/actions.ts       'use server'; Zod-parses input, orchestrates repository + core
+src/features/{Feature}/components/      feature-specific UI
+src/lib/db/server.ts                    privileged client (SUPABASE_SECRET_KEY) — every repository.ts uses this
+src/lib/db/client.ts                    browser client (publishable key) — client components only
+src/app/**/page.tsx                     thin routing layer, renders features/* components, no business logic
 ```
 
 - `core/` must never import from `app/`, `features/`, or `lib/db` — keeps it framework-free and unit-testable in isolation. Use the **emc-pragmatic-type-driven-domain-modeling** skill when designing or changing these types: model mutually exclusive states (e.g. a quote's `draft | pending | approved | declined`) as separate discriminated-union shapes, not a status enum + optional fields, so invalid transitions don't type-check.
@@ -35,10 +35,10 @@ app/**/page.tsx                     thin routing layer, renders features/* compo
 
 - Next.js 16.3 (App Router), React 19, TypeScript (strict mode).
 - Shadcn UI (`style: base-nova`, `iconLibrary: lucide`, neutral base color) — components live in `components/ui/`. Add new components with `npx shadcn@latest add <component>`; use the **shadcn** skill for anything involving the registry, theming, or composing UI.
-- Tailwind CSS v4 (config lives in `app/globals.css`, no `tailwind.config`).
+- Tailwind CSS v4 (config lives in `src/app/globals.css`, no `tailwind.config`).
 - Supabase Postgres. The stack was originally specced as Postgres 18, but Supabase's newest supported major version is currently 17 (confirmed against the CLI and changelog as of 2026-09) — `supabase/config.toml` is set to `major_version = 17`; bump it once Supabase adds 18 support. Use the **supabase** skill for client/auth/RLS work and the **supabase-postgres-best-practices** skill before writing any schema, migration, or query.
 - Local dev: `npx supabase start` (Docker) runs the local stack; copy its printed values into `.env.local` (see `.env.example`). Prefer the `sb_publishable_*` / `sb_secret_*` keys it prints over the legacy JWT `ANON_KEY`/`SERVICE_ROLE_KEY` pair.
-- Path alias: `@/*` resolves to the repo root (see `tsconfig.json`), matching the shadcn `aliases` in `components.json` (`@/components`, `@/lib`, `@/hooks`, `@/components/ui`).
+- Path alias: `@/*` resolves to `src/*` (see `tsconfig.json`), matching the shadcn `aliases` in `components.json` (`@/components`, `@/lib`, `@/hooks`, `@/components/ui`).
 - **vercel-react-best-practices** skill applies to React/Next.js code generally (data fetching, rendering, bundle size).
 - **ai-sdk** skill only becomes relevant if/when an AI-assisted feature is added (e.g. a natural-language query tool over inventory/orders) — the core pricing, state-transition, and inventory-matching logic must stay deterministic, not LLM-driven.
 - **playwright-cli** skill for a handful of full golden-path browser flows (e.g. create quote → approve → schedule order); not a substitute for the Vitest integration layer below.
