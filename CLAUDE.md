@@ -56,7 +56,14 @@ Feature branch → implement + test → PR. Name branches after the tracked issu
 
 ## Current state of the codebase
 
-`app/`, `components/`, `hooks/` still hold unmodified shadcn starter-template boilerplate (a placeholder `app/page.tsx` and an example `app/dashboard` block) — replace as real features land. `lib/db/{server,client}.ts` and local Supabase (`supabase/`) are set up; `core/`, `features/`, schema/migrations, and domain types don't exist yet.
+`app/`, `components/`, `hooks/` still hold unmodified shadcn starter-template boilerplate (a placeholder `app/page.tsx` and an example `app/dashboard` block) — replace as real features land. `lib/db/{server,client}.ts`, local Supabase (`supabase/`), and the initial schema/migrations (`customers`, `window_types`, `glass_types`, `quotes`, `quote_line_items`, `orders`) are set up. `core/`, `features/`, and domain types don't exist yet.
+
+### Schema notes
+
+- All tables have RLS enabled with no policies, and `anon`/`authenticated` privileges are explicitly revoked in the migration (Supabase's default privileges on `public` auto-grant them on every new table — the revoke must be a statement in the migration itself, not just applied ad hoc, or it won't survive a replay/reset). Only `service_role` (used by `lib/db/server.ts`) and `postgres` can touch these tables. Revisit once the Auth task adds real end-user roles that might need direct Postgrest access.
+- `quotes.status` (`pending | approved | declined`) has a check constraint tying it to `approved_at`/`declined_at` so the DB enforces the same state invariant as the `core/` discriminated union. `orders.status` (`scheduled | completed`) similarly ties to `completed_at`.
+- Primary keys are `bigint generated always as identity`, not UUIDs — better index locality for an internal tool with no cross-system ID exposure need (see `supabase-postgres-best-practices` skill).
+- Whether a quote is eligible to become an order (must be `approved`) is enforced in `features/orders/actions.ts`, not via a DB trigger — consistent with the FCIS rule that narrowing/validation happens in the Shell, not the database.
 
 ## Commands
 
