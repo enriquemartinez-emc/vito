@@ -11,6 +11,12 @@ export const quoteFormLineItemSchema = z.object({
 export const quoteFormSchema = z.object({
   customerId: z.coerce.number().int().positive({ error: "Select a customer." }),
   lineItems: z.array(quoteFormLineItemSchema).min(1, "Add at least one window."),
+  comments: z
+    .string()
+    .trim()
+    .max(2000, { error: "Keep comments under 2000 characters." })
+    .optional()
+    .transform((value) => (value ? value : undefined)),
 })
 
 export type QuoteFormValues = z.infer<typeof quoteFormSchema>

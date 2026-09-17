@@ -73,6 +73,7 @@ type QuoteDef = {
   customer: string
   createdDaysAgo: number
   lineItems: LineItemDef[]
+  comments: string
   outcome:
     | { status: "pending" }
     | { status: "declined"; decidedDaysAgo: number; reason: string }
@@ -91,12 +92,14 @@ const QUOTES: QuoteDef[] = [
       { windowType: "Double-Hung", glassType: "Double-Pane", widthIn: 30, heightIn: 48, quantity: 3 },
       { windowType: "Casement", glassType: "Low-E", widthIn: 24, heightIn: 36, quantity: 2 },
     ],
+    comments: "Wants installation done before the holidays if possible.",
     outcome: { status: "pending" },
   },
   {
     customer: "James Whitfield",
     createdDaysAgo: 20,
     lineItems: [{ windowType: "Single-Hung", glassType: "Single-Pane", widthIn: 24, heightIn: 36, quantity: 4 }],
+    comments: "Replacing old aluminum frames in the living room and kitchen.",
     outcome: {
       status: "approved",
       decidedDaysAgo: 18,
@@ -107,6 +110,7 @@ const QUOTES: QuoteDef[] = [
     customer: "Priya Natarajan",
     createdDaysAgo: 10,
     lineItems: [{ windowType: "Bay", glassType: "Tempered", widthIn: 60, heightIn: 48, quantity: 1 }],
+    comments: "Requested a rush quote for a bay window replacement.",
     outcome: { status: "declined", decidedDaysAgo: 9, reason: "Chose a different contractor" },
   },
   {
@@ -116,24 +120,28 @@ const QUOTES: QuoteDef[] = [
       { windowType: "Sliding", glassType: "Double-Pane", widthIn: 48, heightIn: 36, quantity: 2 },
       { windowType: "Fixed", glassType: "Low-E", widthIn: 24, heightIn: 24, quantity: 1 },
     ],
+    comments: "Customer will be out of town the first week of October — schedule after.",
     outcome: { status: "approved", decidedDaysAgo: 13, order: { installationDaysFromToday: 6 } },
   },
   {
     customer: "Aisha Bello",
     createdDaysAgo: 4,
     lineItems: [{ windowType: "Double-Hung", glassType: "Laminated", widthIn: 30, heightIn: 54, quantity: 2 }],
+    comments: "Interested in triple-pane options if pricing allows; quoted laminated for now.",
     outcome: { status: "pending" },
   },
   {
     customer: "Daniel Chen",
     createdDaysAgo: 7,
     lineItems: [{ windowType: "Casement", glassType: "Double-Pane", widthIn: 28, heightIn: 40, quantity: 3 }],
+    comments: "Comparing quotes from two other shops before deciding.",
     outcome: { status: "declined", decidedDaysAgo: 6, reason: "Budget too high" },
   },
   {
     customer: "Laura Fontaine",
     createdDaysAgo: 12,
     lineItems: [{ windowType: "Single-Hung", glassType: "Low-E", widthIn: 24, heightIn: 36, quantity: 5 }],
+    comments: "Bulk order for a rental property — five matching units on the second floor.",
     outcome: { status: "approved", decidedDaysAgo: 10, order: { installationDaysFromToday: 3 } },
   },
   {
@@ -143,18 +151,21 @@ const QUOTES: QuoteDef[] = [
       { windowType: "Fixed", glassType: "Tempered", widthIn: 36, heightIn: 36, quantity: 1 },
       { windowType: "Sliding", glassType: "Single-Pane", widthIn: 48, heightIn: 24, quantity: 2 },
     ],
+    comments: "Wants trim color to match existing siding — ask about custom options.",
     outcome: { status: "pending" },
   },
   {
     customer: "Maria Gonzalez",
     createdDaysAgo: 30,
     lineItems: [{ windowType: "Bay", glassType: "Laminated", widthIn: 72, heightIn: 48, quantity: 1 }],
+    comments: "Second inquiry from this customer; went a different direction ultimately.",
     outcome: { status: "declined", decidedDaysAgo: 28, reason: "Went with vinyl siding replacement instead" },
   },
   {
     customer: "James Whitfield",
     createdDaysAgo: 3,
     lineItems: [{ windowType: "Double-Hung", glassType: "Tempered", widthIn: 30, heightIn: 40, quantity: 2 }],
+    comments: "Follow-up quote after the completed order — replacing a bedroom window next.",
     outcome: { status: "pending" },
   },
 ]
@@ -220,6 +231,7 @@ async function seedQuote(
       heightIn: dimensionSchema.parse(item.heightIn),
       quantity: quantitySchema.parse(item.quantity),
     })),
+    comments: def.comments,
   }
 
   // priceQuote needs a QuoteId up front, but the real id only exists once the
@@ -237,6 +249,7 @@ async function seedQuote(
         status: "pending",
         total: priced.total,
         created_at: priced.createdAt,
+        comments: priced.comments,
       })
       .select("id")
       .single()

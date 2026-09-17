@@ -22,9 +22,11 @@ export default async function NewQuotePage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
-      <h1 className="text-2xl font-semibold">New Quote</h1>
-      <QuoteForm customers={customers} windowTypes={windowTypes} glassTypes={glassTypes} onSubmit={submitQuote} />
+    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      <div className="mx-auto w-full max-w-3xl px-4 lg:px-6">
+        <h1 className="mb-6 text-2xl font-semibold">New Quote</h1>
+        <QuoteForm customers={customers} windowTypes={windowTypes} glassTypes={glassTypes} onSubmit={submitQuote} />
+      </div>
     </div>
   )
 }

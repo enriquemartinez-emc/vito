@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { quoteFormSchema, type QuoteFormValues } from "@/features/quotes/quote-form-schema"
 
 type CatalogOption = { id: number; name: string }
@@ -46,6 +47,7 @@ interface QuoteFormProps {
 export function QuoteForm({ customers, windowTypes, glassTypes, onSubmit }: QuoteFormProps) {
   const [customerId, setCustomerId] = useState("")
   const [lineItems, setLineItems] = useState<LineItemFormState[]>([{ ...emptyLineItem }])
+  const [comments, setComments] = useState("")
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -74,7 +76,7 @@ export function QuoteForm({ customers, windowTypes, glassTypes, onSubmit }: Quot
     event.preventDefault()
     setFormError(null)
 
-    const parsed = quoteFormSchema.safeParse({ customerId, lineItems })
+    const parsed = quoteFormSchema.safeParse({ customerId, lineItems, comments })
     if (!parsed.success) {
       const errors: Record<string, string> = {}
       for (const issue of parsed.error.issues) {
@@ -136,59 +138,63 @@ export function QuoteForm({ customers, windowTypes, glassTypes, onSubmit }: Quot
             </CardHeader>
             <CardContent>
               <FieldGroup>
-                <Field data-invalid={!!fieldErrors[`lineItems.${index}.windowTypeId`]}>
-                  <FieldLabel htmlFor={`window-type-${index}`}>Window Type</FieldLabel>
-                  <Select
-                    items={windowTypeItems}
-                    value={item.windowTypeId || null}
-                    onValueChange={(value) => updateLineItem(index, "windowTypeId", value as string)}
-                  >
-                    <SelectTrigger
-                      id={`window-type-${index}`}
-                      aria-invalid={!!fieldErrors[`lineItems.${index}.windowTypeId`]}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Field data-invalid={!!fieldErrors[`lineItems.${index}.windowTypeId`]}>
+                    <FieldLabel htmlFor={`window-type-${index}`}>Window Type</FieldLabel>
+                    <Select
+                      items={windowTypeItems}
+                      value={item.windowTypeId || null}
+                      onValueChange={(value) => updateLineItem(index, "windowTypeId", value as string)}
                     >
-                      <SelectValue placeholder="Select a window type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {windowTypeItems.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldError errors={fieldError(`lineItems.${index}.windowTypeId`)} />
-                </Field>
+                      <SelectTrigger
+                        id={`window-type-${index}`}
+                        className="w-full"
+                        aria-invalid={!!fieldErrors[`lineItems.${index}.windowTypeId`]}
+                      >
+                        <SelectValue placeholder="Select a window type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {windowTypeItems.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <FieldError errors={fieldError(`lineItems.${index}.windowTypeId`)} />
+                  </Field>
 
-                <Field data-invalid={!!fieldErrors[`lineItems.${index}.glassTypeId`]}>
-                  <FieldLabel htmlFor={`glass-type-${index}`}>Glass Type</FieldLabel>
-                  <Select
-                    items={glassTypeItems}
-                    value={item.glassTypeId || null}
-                    onValueChange={(value) => updateLineItem(index, "glassTypeId", value as string)}
-                  >
-                    <SelectTrigger
-                      id={`glass-type-${index}`}
-                      aria-invalid={!!fieldErrors[`lineItems.${index}.glassTypeId`]}
+                  <Field data-invalid={!!fieldErrors[`lineItems.${index}.glassTypeId`]}>
+                    <FieldLabel htmlFor={`glass-type-${index}`}>Glass Type</FieldLabel>
+                    <Select
+                      items={glassTypeItems}
+                      value={item.glassTypeId || null}
+                      onValueChange={(value) => updateLineItem(index, "glassTypeId", value as string)}
                     >
-                      <SelectValue placeholder="Select a glass type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {glassTypeItems.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldError errors={fieldError(`lineItems.${index}.glassTypeId`)} />
-                </Field>
+                      <SelectTrigger
+                        id={`glass-type-${index}`}
+                        className="w-full"
+                        aria-invalid={!!fieldErrors[`lineItems.${index}.glassTypeId`]}
+                      >
+                        <SelectValue placeholder="Select a glass type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {glassTypeItems.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <FieldError errors={fieldError(`lineItems.${index}.glassTypeId`)} />
+                  </Field>
+                </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <Field data-invalid={!!fieldErrors[`lineItems.${index}.widthIn`]}>
                     <FieldLabel htmlFor={`width-${index}`}>Width (in)</FieldLabel>
                     <Input
@@ -215,21 +221,20 @@ export function QuoteForm({ customers, windowTypes, glassTypes, onSubmit }: Quot
                     />
                     <FieldError errors={fieldError(`lineItems.${index}.heightIn`)} />
                   </Field>
+                  <Field data-invalid={!!fieldErrors[`lineItems.${index}.quantity`]}>
+                    <FieldLabel htmlFor={`quantity-${index}`}>Quantity</FieldLabel>
+                    <Input
+                      id={`quantity-${index}`}
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={item.quantity}
+                      aria-invalid={!!fieldErrors[`lineItems.${index}.quantity`]}
+                      onChange={(e) => updateLineItem(index, "quantity", e.target.value)}
+                    />
+                    <FieldError errors={fieldError(`lineItems.${index}.quantity`)} />
+                  </Field>
                 </div>
-
-                <Field data-invalid={!!fieldErrors[`lineItems.${index}.quantity`]}>
-                  <FieldLabel htmlFor={`quantity-${index}`}>Quantity</FieldLabel>
-                  <Input
-                    id={`quantity-${index}`}
-                    type="number"
-                    min="1"
-                    step="1"
-                    value={item.quantity}
-                    aria-invalid={!!fieldErrors[`lineItems.${index}.quantity`]}
-                    onChange={(e) => updateLineItem(index, "quantity", e.target.value)}
-                  />
-                  <FieldError errors={fieldError(`lineItems.${index}.quantity`)} />
-                </Field>
               </FieldGroup>
             </CardContent>
           </Card>
@@ -243,6 +248,20 @@ export function QuoteForm({ customers, windowTypes, glassTypes, onSubmit }: Quot
         </Button>
         <FieldError errors={fieldError("lineItems")} />
       </div>
+
+      <FieldGroup>
+        <Field data-invalid={!!fieldErrors.comments}>
+          <FieldLabel htmlFor="quote-comments">Comments</FieldLabel>
+          <Textarea
+            id="quote-comments"
+            placeholder="Special instructions, install constraints, anything else worth noting..."
+            value={comments}
+            aria-invalid={!!fieldErrors.comments}
+            onChange={(e) => setComments(e.target.value)}
+          />
+          <FieldError errors={fieldError("comments")} />
+        </Field>
+      </FieldGroup>
 
       <FieldError errors={formError ? [{ message: formError }] : undefined} />
 

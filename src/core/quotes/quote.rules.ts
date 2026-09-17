@@ -62,6 +62,7 @@ export function priceQuote(
     lineItems,
     total,
     createdAt,
+    comments: draft.comments,
   }
 }
 
@@ -73,6 +74,7 @@ export function approveQuote(quote: PendingQuote, approvedAt: string): ApprovedQ
     lineItems: quote.lineItems,
     total: quote.total,
     createdAt: quote.createdAt,
+    comments: quote.comments,
     approvedAt,
   }
 }
@@ -89,6 +91,7 @@ export function declineQuote(
     lineItems: quote.lineItems,
     total: quote.total,
     createdAt: quote.createdAt,
+    comments: quote.comments,
     declinedAt,
     declineReason,
   }
