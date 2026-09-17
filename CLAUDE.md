@@ -75,5 +75,6 @@ Merge via squash, with a conventional-commit subject (`feat:`, `fix:`, `docs:`, 
 - `npm run typecheck` — `tsc --noEmit`.
 - `npm run test` / `npm run test:watch` — Vitest.
 - `npx supabase start` / `npx supabase stop` — local Supabase stack (Docker).
+- `npm run seed` — clears and reseeds local Supabase with demo customers, the product catalog, and a mix of pending/approved/declined quotes and scheduled/completed orders (`scripts/seed.ts`, run with `tsx`). Prices quotes through the real `priceQuote` core function rather than hand-computing totals, so demo data matches production pricing logic.
 
 Formatting is enforced by `.prettierrc`: no semicolons, double quotes, and Tailwind class sorting via `prettier-plugin-tailwindcss` — run `npm run format` rather than hand-formatting.
