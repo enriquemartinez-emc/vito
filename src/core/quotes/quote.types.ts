@@ -53,6 +53,8 @@ interface QuoteBase {
   readonly lineItems: readonly PricedQuoteLineItem[]
   readonly total: Money
   readonly createdAt: string // ISO datetime
+  /** Freeform notes about the job (e.g. customer requests, install constraints). */
+  readonly comments?: string
 }
 
 /** Not yet saved or priced — no id, no totals. Priced into a PendingQuote by the pricing function. */
@@ -60,6 +62,7 @@ export interface DraftQuote {
   readonly status: "draft"
   readonly customerId: CustomerId
   readonly lineItems: readonly QuoteLineItemSpec[]
+  readonly comments?: string
 }
 
 /** Priced and saved, awaiting the customer's decision. */
