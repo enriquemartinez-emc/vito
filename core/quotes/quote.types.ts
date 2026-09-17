@@ -36,6 +36,17 @@ export const pricedQuoteLineItemSchema = quoteLineItemSpecSchema.extend({
 })
 export type PricedQuoteLineItem = z.infer<typeof pricedQuoteLineItemSchema>
 
+/**
+ * Reference costs needed to price a quote: window_types.labor_cost and
+ * glass_types.unit_cost (per square foot), keyed by id. Built by the Shell
+ * from the catalog tables — the pricing function trusts it's complete for
+ * every id referenced by the line items being priced.
+ */
+export interface PriceSheet {
+  readonly laborCostByWindowType: ReadonlyMap<WindowTypeId, Money>
+  readonly glassUnitCostByGlassType: ReadonlyMap<GlassTypeId, Money>
+}
+
 interface QuoteBase {
   readonly id: QuoteId
   readonly customerId: CustomerId
